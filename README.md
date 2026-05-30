@@ -22,6 +22,22 @@ CrimsonView replaces ZAP's default plain text viewers with a syntax-highlighted 
 
 ---
 
+## Screenshots
+
+### CrimsonView in ZAP
+
+![CrimsonView in ZAP](screenshots/zap.jpg)
+
+CrimsonView integrated into ZAP showing the syntax-highlighted request/response viewer with dark theme, annotation tools, and redaction controls.
+
+### Document-Ready Screenshot Example
+
+![Document-ready screenshot in LibreOffice](screenshots/document.jpg)
+
+A screenshot exported in light mode and inserted into LibreOffice Writer. Note the professional appearance suitable for client reports—clean white background, clear syntax highlighting, and automatic redaction of sensitive data (tokens, API keys, passwords).
+
+---
+
 ## Use Cases
 
 ### Document-Ready Screenshots Without the Pain
@@ -204,22 +220,6 @@ Requests can be exported as cURL commands with redaction applied, enabling repro
 ### 5. Layout Customization
 
 Horizontal and vertical layout options accommodate different analysis workflows and screen configurations.
-
----
-
-## Screenshots
-
-### CrimsonView in ZAP
-
-![CrimsonView in ZAP](screenshots/zap.jpg)
-
-CrimsonView integrated into ZAP showing the syntax-highlighted request/response viewer with dark theme, annotation tools, and redaction controls.
-
-### Document-Ready Screenshot Example
-
-![Document-ready screenshot in LibreOffice](screenshots/document.jpg)
-
-A screenshot exported in light mode and inserted into LibreOffice Writer. Note the professional appearance suitable for client reports—clean white background, clear syntax highlighting, and automatic redaction of sensitive data (tokens, API keys, passwords).
 
 ---
 

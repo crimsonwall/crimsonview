@@ -2,7 +2,7 @@
 
 **Document-ready screenshots for penetration testers, without the pain.**
 
-![CrimsonView](https://img.shields.io/badge/version-1.0.3--beta-red)
+![CrimsonView](https://img.shields.io/badge/version-1.0.4--beta-red)
 ![ZAP](https://img.shields.io/badge/ZAP-2.17.0%2B-blue)
 ![License](https://img.shields.io/badge/license-Apache%202.0-green)
 
@@ -105,13 +105,6 @@ Requests can be opened in ZAP's Request Editor via context menu for modification
 
 ## Installation
 
-### From ZAP Marketplace
-
-1. Open ZAP
-2. Navigate to **Manage Add-ons**
-3. Search for **CrimsonView**
-4. Click **Install**
-
 ### Manual Installation
 
 1. Download the latest `.zap` file from [Releases](https://github.com/crimsonwall/crimsonview/releases)
@@ -135,7 +128,7 @@ cd crimsonview
 ./gradlew build
 ```
 
-The output file `crimsonview-release-1.0.3.zap` is located in `build/zapAddOn/bin/`.
+The output file `crimsonview-release-1.0.4.zap` is located in `build/zapAddOn/bin/`.
 
 ### Additional Build Options
 
@@ -157,6 +150,11 @@ Access via **Tools → Options → CrimsonView → Redaction**:
 - Replacement text customization (default: `**REDACTED**`)
 - Individual rule toggle
 - Custom regex pattern addition
+
+### Display Preferences
+
+- **Light mode toggle**: Switch between light and dark color schemes for the main request/response viewer (disabled by default)
+- When enabled, uses the same color palette as screenshot light mode for consistency
 
 ### Screenshot Preferences
 
@@ -211,7 +209,17 @@ Horizontal and vertical layout options accommodate different analysis workflows 
 
 ## Screenshots
 
-*(Screenshots to be added: syntax highlighting, redaction interface, export options)*
+### CrimsonView in ZAP
+
+![CrimsonView in ZAP](screenshots/zap.jpg)
+
+CrimsonView integrated into ZAP showing the syntax-highlighted request/response viewer with dark theme, annotation tools, and redaction controls.
+
+### Document-Ready Screenshot Example
+
+![Document-ready screenshot in LibreOffice](screenshots/document.jpg)
+
+A screenshot exported in light mode and inserted into LibreOffice Writer. Note the professional appearance suitable for client reports—clean white background, clear syntax highlighting, and automatic redaction of sensitive data (tokens, API keys, passwords).
 
 ---
 

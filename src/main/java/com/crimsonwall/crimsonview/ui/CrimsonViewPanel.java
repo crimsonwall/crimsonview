@@ -116,6 +116,14 @@ public final class CrimsonViewPanel extends AbstractPanel {
     private static final Color COLOR_STATUS_FG = new Color(140, 148, 160);
     private static final Color COLOR_SECTION_BAR = new Color(55, 59, 67);
     private static final Color COLOR_SECTION_FG = new Color(220, 80, 100);
+
+    // Light mode colours for UI elements
+    private static final Color COLOR_BG_LIGHT = new Color(255, 255, 255);
+    private static final Color COLOR_TOOLBAR_BG_LIGHT = new Color(245, 245, 250);
+    private static final Color COLOR_STATUS_BG_LIGHT = new Color(240, 240, 245);
+    private static final Color COLOR_STATUS_FG_LIGHT = new Color(80, 80, 90);
+    private static final Color COLOR_SECTION_BAR_LIGHT = new Color(235, 235, 240);
+    private static final Color COLOR_SECTION_FG_LIGHT = new Color(180, 40, 60);
     private static final int MAX_STATUS_URI_LENGTH = 500;
     private static final int MAX_SCREENSHOT_HEIGHT = 16384;
     private static final int NO_WRAP_WIDTH = 100_000;
@@ -144,7 +152,7 @@ public final class CrimsonViewPanel extends AbstractPanel {
     private static ImageIcon iconHorizontal;
 
     private final transient ExtensionCrimsonView extension;
-    private final transient HttpMessageRenderer renderer;
+    private transient HttpMessageRenderer renderer;
 
     private JTextPane requestPane;
     private JTextPane responsePane;
@@ -163,6 +171,7 @@ public final class CrimsonViewPanel extends AbstractPanel {
     private final transient AnnotationStore annotationStore = new AnnotationStore();
     private final transient ManualRedactStore manualRedactStore = new ManualRedactStore();
     private transient boolean lastFocusedIsRequest = true;
+    private transient boolean currentLightMode = false;
 
     private enum AnnotationMode { NONE, PENCIL, HIGHLIGHTER }
     private transient AnnotationMode annotationMode = AnnotationMode.NONE;
@@ -178,11 +187,19 @@ public final class CrimsonViewPanel extends AbstractPanel {
      */
     public CrimsonViewPanel(ExtensionCrimsonView extension) {
         this.extension = extension;
-        this.renderer = new HttpMessageRenderer();
-        this.renderer.initAttributes();
-        this.renderer.setRedactConfig(extension.getRedactConfig());
         this.horizontal = LayoutPrefs.loadHorizontal();
         this.annotationColor = new Color(extension.getRedactConfig().getAnnotationColor());
+        this.currentLightMode = extension.getRedactConfig().isLightModeEnabled();
+
+        // Create renderer based on light mode setting
+        if (currentLightMode) {
+            this.renderer = buildLightModeRenderer();
+        } else {
+            this.renderer = new HttpMessageRenderer();
+        }
+        this.renderer.initAttributes();
+        this.renderer.setRedactConfig(extension.getRedactConfig());
+
         initialize();
         setIcon(ExtensionCrimsonView.getIcon());
     }
@@ -228,12 +245,12 @@ public final class CrimsonViewPanel extends AbstractPanel {
      */
     private JPanel createHalfPanel(String titleKey, boolean isRequest) {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(COLOR_BG);
+        panel.setBackground(getBgColor());
 
         JLabel label = new JLabel(" " + Constant.messages.getString(titleKey));
         label.setFont(label.getFont().deriveFont(Font.BOLD, 11.0f));
-        label.setForeground(COLOR_SECTION_FG);
-        label.setBackground(COLOR_SECTION_BAR);
+        label.setForeground(getSectionFgColor());
+        label.setBackground(getSectionBarColor());
         label.setOpaque(true);
         label.setBorder(BorderFactory.createEmptyBorder(3, 6, 3, 4));
         panel.add(label, BorderLayout.NORTH);
@@ -265,8 +282,8 @@ public final class CrimsonViewPanel extends AbstractPanel {
     private JTextPane createTextPane(boolean isRequestPane) {
         JTextPane pane = new JTextPane();
         pane.setEditable(false);
-        pane.setBackground(COLOR_BG);
-        pane.setCaretColor(Color.WHITE);
+        pane.setBackground(getBgColor());
+        pane.setCaretColor(isLightModeEnabled() ? Color.BLACK : Color.WHITE);
         addContextMenu(pane, isRequestPane);
         addAnnotationListener(pane, isRequestPane);
         pane.addFocusListener(
@@ -330,7 +347,7 @@ public final class CrimsonViewPanel extends AbstractPanel {
      */
     private JPanel createToolbar() {
         JPanel bar = new JPanel(new BorderLayout());
-        bar.setBackground(COLOR_TOOLBAR_BG);
+        bar.setBackground(getToolbarBgColor());
         bar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(30, 33, 40)));
         bar.setOpaque(true);
 
@@ -441,10 +458,10 @@ public final class CrimsonViewPanel extends AbstractPanel {
      */
     private JPanel createStatusBar() {
         JPanel bar = new JPanel(new BorderLayout());
-        bar.setBackground(COLOR_STATUS_BG);
+        bar.setBackground(getStatusBgColor());
         bar.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(30, 33, 40)));
         statusLabel = new JLabel(Constant.messages.getString("crimsonview.status.ready"));
-        statusLabel.setForeground(COLOR_STATUS_FG);
+        statusLabel.setForeground(getStatusFgColor());
         statusLabel.setFont(statusLabel.getFont().deriveFont(11.0f));
         statusLabel.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 4));
         bar.add(statusLabel, BorderLayout.WEST);
@@ -583,13 +600,96 @@ public final class CrimsonViewPanel extends AbstractPanel {
 
     /**
      * Re-renders the current message after a configuration change (e.g. redaction settings
-     * updated).
+     * updated or light mode toggled).
      */
     public void refresh() {
         HttpMessage msg = currentMessage;
         if (msg != null) {
+            boolean newLightMode = extension.getRedactConfig().isLightModeEnabled();
+
+            // Recreate renderer if light mode setting changed
+            if (newLightMode != currentLightMode) {
+                currentLightMode = newLightMode;
+                if (newLightMode) {
+                    renderer = buildLightModeRenderer();
+                } else {
+                    renderer = new HttpMessageRenderer();
+                }
+                renderer.initAttributes();
+                updateUIColors();
+            }
+
             renderer.setRedactConfig(extension.getRedactConfig());
             displayMessage(msg);
+        }
+    }
+
+    /**
+     * Updates UI colors when light mode is toggled.
+     */
+    private void updateUIColors() {
+        Color bgColor = getBgColor();
+        Color toolbarBgColor = getToolbarBgColor();
+        Color statusBgColor = getStatusBgColor();
+        Color statusFgColor = getStatusFgColor();
+        Color sectionBarColor = getSectionBarColor();
+        Color sectionFgColor = getSectionFgColor();
+        Color caretColor = isLightModeEnabled() ? Color.BLACK : Color.WHITE;
+
+        // Update request pane
+        requestPane.setBackground(bgColor);
+        requestPane.setCaretColor(caretColor);
+
+        // Update response pane
+        responsePane.setBackground(bgColor);
+        responsePane.setCaretColor(caretColor);
+
+        // Update request panel
+        java.awt.Component[] reqComps = requestPanel.getComponents();
+        for (java.awt.Component comp : reqComps) {
+            if (comp instanceof JLabel) {
+                comp.setForeground(sectionFgColor);
+                comp.setBackground(sectionBarColor);
+            } else if (comp instanceof JScrollPane) {
+                comp.setBackground(bgColor);
+            }
+        }
+        requestPanel.setBackground(bgColor);
+
+        // Update response panel
+        java.awt.Component[] respComps = responsePanel.getComponents();
+        for (java.awt.Component comp : respComps) {
+            if (comp instanceof JLabel) {
+                comp.setForeground(sectionFgColor);
+                comp.setBackground(sectionBarColor);
+            } else if (comp instanceof JScrollPane) {
+                comp.setBackground(bgColor);
+            }
+        }
+        responsePanel.setBackground(bgColor);
+
+        // Update toolbar - need to find it in the layout
+        for (java.awt.Component comp : getComponents()) {
+            if (comp instanceof JPanel) {
+                JPanel panel = (JPanel) comp;
+                if (panel.getBorder() != null && panel.getBorder() instanceof javax.swing.border.MatteBorder) {
+                    // This is likely the toolbar
+                    panel.setBackground(toolbarBgColor);
+                }
+            }
+        }
+
+        // Update status bar
+        for (java.awt.Component comp : getComponents()) {
+            if (comp instanceof JPanel) {
+                JPanel panel = (JPanel) comp;
+                for (java.awt.Component subComp : panel.getComponents()) {
+                    if (subComp instanceof JLabel) {
+                        statusLabel.setForeground(statusFgColor);
+                    }
+                }
+                panel.setBackground(statusBgColor);
+            }
         }
     }
 
@@ -1303,7 +1403,7 @@ public final class CrimsonViewPanel extends AbstractPanel {
             AttributeSet attrs = run.getAttributes();
             boolean isUnderline = StyleConstants.isUnderline(attrs);
             Color bg = StyleConstants.getBackground(attrs);
-            boolean hasHighlight = (bg != null && !bg.equals(COLOR_BG) && !bg.equals(Color.WHITE));
+            boolean hasHighlight = (bg != null && !bg.equals(getBgColor()) && !bg.equals(Color.WHITE));
             int type = isUnderline ? 1 : (hasHighlight ? 2 : 0);
             if (type != currentType) {
                 if (currentType >= 0) {
@@ -2261,6 +2361,30 @@ public final class CrimsonViewPanel extends AbstractPanel {
     private static final Color LIGHT_COLOR_OFFSET = new Color(120, 120, 120);
     private static final Color LIGHT_COLOR_REDACTED = new Color(40, 80, 180);
 
+    /**
+     * Builds a renderer for light-mode display rendering.
+     * Uses light colour scheme similar to screenshots but for the main display.
+     */
+    private HttpMessageRenderer buildLightModeRenderer() {
+        return new HttpMessageRenderer() {
+            @Override
+            public void initAttributes() {
+                initAttr(attrAccent, LIGHT_COLOR_NUMBER);
+                initAttr(attrKeyword, LIGHT_COLOR_KEY);
+                initAttr(attrLiteral, LIGHT_COLOR_STRING);
+                initAttr(attrPunct, LIGHT_COLOR_PUNCT);
+                initAttr(attrStatus2xx, LIGHT_COLOR_STRING);
+                initAttr(attrStatus3xx, LIGHT_COLOR_NUMBER);
+                initAttr(attrStatus4xx, LIGHT_COLOR_KEY);
+                initAttr(attrBoolNull, LIGHT_COLOR_BOOL_NULL);
+                initAttr(attrOffset, LIGHT_COLOR_OFFSET);
+                initAttr(attrRedacted, LIGHT_COLOR_REDACTED);
+                initAttrBold(attrBoldMethod, LIGHT_COLOR_NUMBER);
+                initAttr(attrUrlNavy, new Color(0, 0, 128));
+            }
+        };
+    }
+
     private HttpMessageRenderer buildScreenshotRenderer(
             RedactConfig displayConfig, boolean lightMode) {
         HttpMessageRenderer screenshotRenderer;
@@ -2293,6 +2417,45 @@ public final class CrimsonViewPanel extends AbstractPanel {
         screenshotConfig.setEntries(new ArrayList<>(displayConfig.getEntries()));
         screenshotRenderer.setRedactConfig(screenshotConfig);
         return screenshotRenderer;
+    }
+
+    /**
+     * Returns whether light mode is enabled for the main display.
+     *
+     * @return {@code true} if light mode is enabled
+     */
+    private boolean isLightModeEnabled() {
+        return extension.getRedactConfig().isLightModeEnabled();
+    }
+
+    /** @return the background colour based on current mode */
+    private Color getBgColor() {
+        return isLightModeEnabled() ? COLOR_BG_LIGHT : COLOR_BG;
+    }
+
+    /** @return the toolbar background colour based on current mode */
+    private Color getToolbarBgColor() {
+        return isLightModeEnabled() ? COLOR_TOOLBAR_BG_LIGHT : COLOR_TOOLBAR_BG;
+    }
+
+    /** @return the status bar background colour based on current mode */
+    private Color getStatusBgColor() {
+        return isLightModeEnabled() ? COLOR_STATUS_BG_LIGHT : COLOR_STATUS_BG;
+    }
+
+    /** @return the status bar foreground colour based on current mode */
+    private Color getStatusFgColor() {
+        return isLightModeEnabled() ? COLOR_STATUS_FG_LIGHT : COLOR_STATUS_FG;
+    }
+
+    /** @return the section bar background colour based on current mode */
+    private Color getSectionBarColor() {
+        return isLightModeEnabled() ? COLOR_SECTION_BAR_LIGHT : COLOR_SECTION_BAR;
+    }
+
+    /** @return the section label foreground colour based on current mode */
+    private Color getSectionFgColor() {
+        return isLightModeEnabled() ? COLOR_SECTION_FG_LIGHT : COLOR_SECTION_FG;
     }
 
     /**

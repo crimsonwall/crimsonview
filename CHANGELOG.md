@@ -5,6 +5,14 @@ All notable changes to CrimsonView will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4-beta] - 2026-05-30
+
+### Added
+- Light mode toggle for main display: switch between light and dark color schemes for the request/response viewer
+- "Use light mode" checkbox in plugin options (disabled by default)
+- Light mode uses the same color palette as screenshot light mode for consistency
+- Dynamic UI color updates when toggling between light and dark modes
+
 ## [1.0.3-beta] - 2026-05-16
 
 ### Added
@@ -81,3 +89,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.0.1]: https://github.com/crimsonwall/crimsonview/releases/tag/v1.0.1
 [1.0.2-beta]: https://github.com/crimsonwall/crimsonview/releases/tag/v1.0.2-beta
 [1.0.3-beta]: https://github.com/crimsonwall/crimsonview/releases/tag/v1.0.3-beta
+[1.0.4-beta]: https://github.com/crimsonwall/crimsonview/releases/tag/v1.0.4-beta

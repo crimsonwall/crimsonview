@@ -45,6 +45,7 @@ public class RedactConfig {
     private static final String KEY_REPLACEMENT = "autoRedact.replacementText";
     private static final String KEY_SCREENSHOT = "autoRedact.redactScreenshots";
     private static final String KEY_LIGHT_MODE = "autoRedact.lightModeScreenshots";
+    private static final String KEY_LIGHT_MODE_ENABLED = "autoRedact.lightModeEnabled";
     private static final String KEY_OPTIMIZE_SPACE = "autoRedact.optimizeScreenshotSpace";
     private static final String KEY_SCREENSHOT_MAX_WIDTH = "autoRedact.screenshotMaxWidth";
     private static final String KEY_SCREENSHOT_TRUNCATE = "autoRedact.screenshotTruncateLines";
@@ -69,6 +70,7 @@ public class RedactConfig {
     private volatile String replacementText;
     private volatile boolean redactScreenshots;
     private volatile boolean lightModeScreenshots;
+    private volatile boolean lightModeEnabled;
     private volatile boolean optimizeScreenshotSpace;
     private volatile int screenshotMaxWidth;
     private volatile boolean screenshotTruncateLines;
@@ -86,6 +88,7 @@ public class RedactConfig {
         this.replacementText = DEFAULT_REPLACEMENT;
         this.redactScreenshots = false;
         this.lightModeScreenshots = true;
+        this.lightModeEnabled = false;
         this.optimizeScreenshotSpace = false;
         this.screenshotMaxWidth = DEFAULT_SCREENSHOT_MAX_WIDTH;
         this.screenshotTruncateLines = false;
@@ -110,6 +113,7 @@ public class RedactConfig {
             this.replacementText = config.getString(KEY_REPLACEMENT, DEFAULT_REPLACEMENT);
             this.redactScreenshots = config.getBoolean(KEY_SCREENSHOT, false);
             this.lightModeScreenshots = config.getBoolean(KEY_LIGHT_MODE, true);
+            this.lightModeEnabled = config.getBoolean(KEY_LIGHT_MODE_ENABLED, false);
             this.optimizeScreenshotSpace = config.getBoolean(KEY_OPTIMIZE_SPACE, false);
             this.screenshotMaxWidth =
                     Math.max(
@@ -147,6 +151,7 @@ public class RedactConfig {
             config.setProperty(KEY_REPLACEMENT, replacementText);
             config.setProperty(KEY_SCREENSHOT, Boolean.valueOf(redactScreenshots));
             config.setProperty(KEY_LIGHT_MODE, Boolean.valueOf(lightModeScreenshots));
+            config.setProperty(KEY_LIGHT_MODE_ENABLED, Boolean.valueOf(lightModeEnabled));
             config.setProperty(KEY_OPTIMIZE_SPACE, Boolean.valueOf(optimizeScreenshotSpace));
             config.setProperty(KEY_SCREENSHOT_MAX_WIDTH, Integer.valueOf(screenshotMaxWidth));
             config.setProperty(KEY_SCREENSHOT_TRUNCATE, Boolean.valueOf(screenshotTruncateLines));
@@ -202,6 +207,16 @@ public class RedactConfig {
     /** @param lightModeScreenshots whether screenshots use a light colour scheme */
     public void setLightModeScreenshots(boolean lightModeScreenshots) {
         this.lightModeScreenshots = lightModeScreenshots;
+    }
+
+    /** @return {@code true} if the main display uses a light colour scheme */
+    public boolean isLightModeEnabled() {
+        return lightModeEnabled;
+    }
+
+    /** @param lightModeEnabled whether the main display uses a light colour scheme */
+    public void setLightModeEnabled(boolean lightModeEnabled) {
+        this.lightModeEnabled = lightModeEnabled;
     }
 
     /** @return {@code true} if screenshots should minimise wasted whitespace */

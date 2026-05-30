@@ -71,6 +71,7 @@ public final class OptionsRedactPanel extends AbstractParamPanel {
     private final transient ExtensionCrimsonView extension;
 
     private JCheckBox enableCheckBox;
+    private JCheckBox lightModeEnabledCheckBox;
     private JTextField replacementField;
     private JCheckBox screenshotCheckBox;
     private JCheckBox lightModeCheckBox;
@@ -134,6 +135,14 @@ public final class OptionsRedactPanel extends AbstractParamPanel {
         enableCheckBox.setToolTipText(
                 Constant.messages.getString("crimsonview.options.enable.tooltip"));
         generalPanel.add(enableCheckBox, gc);
+
+        gc.gridy = ++row;
+        gc.insets = new Insets(0, 4, 4, 4);
+        lightModeEnabledCheckBox =
+                new JCheckBox(Constant.messages.getString("crimsonview.options.lightmodeenabled"));
+        lightModeEnabledCheckBox.setToolTipText(
+                Constant.messages.getString("crimsonview.options.lightmodeenabled.tooltip"));
+        generalPanel.add(lightModeEnabledCheckBox, gc);
 
         // Screenshot settings section
         gc.gridy = ++row;
@@ -505,6 +514,7 @@ public final class OptionsRedactPanel extends AbstractParamPanel {
     public void initParam(Object obj) {
         RedactConfig config = extension.getRedactConfig();
         enableCheckBox.setSelected(config.isEnabled());
+        lightModeEnabledCheckBox.setSelected(config.isLightModeEnabled());
         replacementField.setText(config.getReplacementText());
         screenshotCheckBox.setSelected(config.isRedactScreenshots());
         lightModeCheckBox.setSelected(config.isLightModeScreenshots());
@@ -522,6 +532,7 @@ public final class OptionsRedactPanel extends AbstractParamPanel {
     public void saveParam(Object obj) throws Exception {
         RedactConfig config = extension.getRedactConfig();
         config.setEnabled(enableCheckBox.isSelected());
+        config.setLightModeEnabled(lightModeEnabledCheckBox.isSelected());
         String replacementText = replacementField.getText().trim();
         config.setReplacementText(replacementText.isEmpty() ? "[redacted]" : replacementText);
         config.setRedactScreenshots(screenshotCheckBox.isSelected());
